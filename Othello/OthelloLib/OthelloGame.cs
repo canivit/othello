@@ -103,9 +103,20 @@ public class OthelloGame : IOthelloGame
     }
   }
 
-  public bool IsValidPlacement(int row, int col)
+  public bool IsValidPlacement(int row, int column)
   {
-    throw new NotImplementedException();
+    if (row < 0 || row > BoardSize - 1 || column < 0 || column > BoardSize - 1)
+    {
+      return false;
+    }
+
+    if (this[row, column] != SquareState.Empty)
+    {
+      return false;
+    }
+
+    return FindNextSameColorLocations(row, column, _turn)
+      .Any(pair => OutflanksColor(row, column, pair.Row, pair.Column, GetOppositeColor(_turn)));
   }
 
   public void PlaceDisk(int row, int column)
@@ -128,5 +139,129 @@ public class OthelloGame : IOthelloGame
     }
 
     return count;
+  }
+
+  private IEnumerable<(int Row, int Column)> FindNextSameColorLocations(int row, int column, Color color)
+  {
+    int r;
+    int c;
+    IList<(int Row, int Column)> locations = new List<(int Row, int Column)>();
+
+    for (r = row - 2; r >= 0; r -= 1)
+    {
+      if (BoardHasColor(r, column, color))
+      {
+        locations.Add((r, column));
+        break;
+      }
+    }
+
+    for (c = column - 2; c >= 0; c -= 1)
+    {
+      if (BoardHasColor(row, c, color))
+      {
+        locations.Add((row, c));
+        break;
+      }
+    }
+
+    for (r = row + 2; r <= BoardSize - 1; r += 1)
+    {
+      if (BoardHasColor(r, column, color))
+      {
+        locations.Add((r, column));
+        break;
+      }
+    }
+
+    for (c = column + 2; c <= BoardSize - 1; c++)
+    {
+      if (BoardHasColor(row, c, color))
+      {
+        locations.Add((row, c));
+        break;
+      }
+    }
+
+    r = row - 2;
+    c = column - 2;
+    while (r >= 0 && c >= 0)
+    {
+      if (BoardHasColor(r, c, color))
+      {
+        locations.Add((r, c));
+        break;
+      }
+
+      r -= 1;
+      c -= 1;
+    }
+
+    r = row + 2;
+    c = column - 2;
+    while (r <= BoardSize - 1 && c >= 0)
+    {
+      if (BoardHasColor(r, c, color))
+      {
+        locations.Add((r, c));
+        break;
+      }
+
+      r += 1;
+      c -= 1;
+    }
+
+    r = row + 2;
+    c = column + 2;
+    while (r <= BoardSize - 1 && c <= BoardSize - 1)
+    {
+      if (BoardHasColor(r, c, color))
+      {
+        locations.Add((r, c));
+        break;
+      }
+
+      r += 1;
+      c += 1;
+    }
+
+    r = row - 2;
+    c = column + 2;
+    while (r >= 0 && c <= BoardSize - 1)
+    {
+      if (BoardHasColor(r, c, color))
+      {
+        locations.Add((r, c));
+        break;
+      }
+
+      r -= 1;
+      c += 1;
+    }
+
+    return locations;
+  }
+
+  private bool BoardHasColor(int row, int column, Color color)
+  {
+    switch (color)
+    {
+      case Color.Black:
+        return _board[row, column] == SquareState.Black;
+      case Color.White:
+        return _board[row, column] == SquareState.White;
+      default:
+        return false;
+    }
+  }
+
+  private bool OutflanksColor(int fromRow, int fromColumn, int toRow, int toColumn, Color color)
+  {
+    return true;
+  }
+
+  private static Color GetOppositeColor(Color color)
+  {
+    return color == Color.Black ? Color.White : Color.Black;
   }
 }
