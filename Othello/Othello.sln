@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OthelloLib", "OthelloLib\OthelloLib.csproj", "{D39FDF4B-9C0B-4767-AAC7-374CE2BB71EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OthelloLibTest", "OthelloLibTest\OthelloLibTest.csproj", "{42268A2E-0779-4942-B5D3-C14838FC7273}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{D39FDF4B-9C0B-4767-AAC7-374CE2BB71EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D39FDF4B-9C0B-4767-AAC7-374CE2BB71EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D39FDF4B-9C0B-4767-AAC7-374CE2BB71EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42268A2E-0779-4942-B5D3-C14838FC7273}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42268A2E-0779-4942-B5D3-C14838FC7273}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42268A2E-0779-4942-B5D3-C14838FC7273}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42268A2E-0779-4942-B5D3-C14838FC7273}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

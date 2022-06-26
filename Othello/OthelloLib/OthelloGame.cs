@@ -3,7 +3,7 @@ using OthelloLib.Exceptions;
 
 namespace OthelloLib;
 
-public class OthelloGame : IOthelloGame
+internal class OthelloGame : IOthelloGame
 {
   private static readonly int _boardSize = 8;
 
@@ -26,9 +26,23 @@ public class OthelloGame : IOthelloGame
     _board[3, 4] = SquareState.Black;
     _board[4, 3] = SquareState.Black;
     _board[4, 4] = SquareState.White;
-
+    
     _gameOver = false;
     _turn = Color.Black;
+  }
+
+  internal OthelloGame(SquareState[,] board, Color turn)
+  {
+    if (board.GetLength(0) != _boardSize || board.GetLength(1) != _boardSize)
+    {
+      throw new ArgumentException("Invalid board size.");
+    }
+
+    _board = new SquareState[_boardSize, _boardSize];
+    Array.Copy(board, _board, board.Length);
+    _turn = turn;
+    // @TODO add logic for checking this
+    _gameOver = false;
   }
 
   public bool IsGameOver()
@@ -70,7 +84,7 @@ public class OthelloGame : IOthelloGame
   {
     get
     {
-      if (!IsGameOver())
+      if (IsGameOver())
       {
         throw new GameOverException("Game is over.");
       }
@@ -115,13 +129,27 @@ public class OthelloGame : IOthelloGame
       return false;
     }
 
-    return FindNextSameColorLocations(row, column, _turn)
-      .Any(pair => OutflanksColor(row, column, pair.Row, pair.Column, GetOppositeColor(_turn)));
+    IEnumerable<(int Row, int Column)> locations = FindNextSameColorLocations(row, column, _turn);
+    Color oppositeColor = GetOppositeColor(_turn);
+    return locations.Any(pair => OutflanksColor(row, column, pair.Row, pair.Column, oppositeColor));
   }
 
   public void PlaceDisk(int row, int column)
   {
-    throw new NotImplementedException();
+    if (!IsValidPlacement(row, column))
+    {
+      throw new InvalidPlacementException("Invalid disk placement");
+    }
+
+    Color oppositeColor = GetOppositeColor(_turn);
+    IEnumerable<(int Row, int Column)> locations = FindNextSameColorLocations(row, column, _turn)
+      .Where(pair => OutflanksColor(row, column, pair.Row, pair.Column, oppositeColor));
+    foreach (var pair in locations)
+    {
+      PlaceDiskLinear(row, column, pair.Row, pair.Column, _turn);
+    }
+
+    _turn = oppositeColor;
   }
 
   private int CountSquareState(SquareState state)
@@ -244,24 +272,54 @@ public class OthelloGame : IOthelloGame
 
   private bool BoardHasColor(int row, int column, Color color)
   {
-    switch (color)
-    {
-      case Color.Black:
-        return _board[row, column] == SquareState.Black;
-      case Color.White:
-        return _board[row, column] == SquareState.White;
-      default:
-        return false;
-    }
+    return color == Color.Black ? _board[row, column] == SquareState.Black : _board[row, column] == SquareState.White;
   }
 
   private bool OutflanksColor(int fromRow, int fromColumn, int toRow, int toColumn, Color color)
   {
+    int rowDelta = Math.Min(Math.Max(toRow - fromRow, -1), 1);
+    int columnDelta = Math.Min(Math.Max(toColumn - fromColumn, -1), 1);
+    
+    int row = fromRow + rowDelta;
+    int column = fromColumn + columnDelta;
+    int steps = Math.Max(Math.Abs(toRow - row), Math.Abs(toColumn - column));
+    for(int i = 0; i < steps; i += 1)
+    {
+      if (!BoardHasColor(row, column, color))
+      {
+        return false;
+      }
+
+      row += rowDelta;
+      column += columnDelta;
+    }
+
     return true;
+  }
+
+  private void PlaceDiskLinear(int fromRow, int fromColumn, int toRow, int toColumn, Color color)
+  {
+    int rowDelta = Math.Min(Math.Max(toRow - fromRow, -1), 1);
+    int columnDelta = Math.Min(Math.Max(toColumn - fromColumn, -1), 1);
+
+    int row = fromRow;
+    int column = fromColumn;
+    int steps = Math.Max(Math.Abs(toRow - row), Math.Abs(toColumn - column));
+    for(int i = 0; i < steps; i += 1)
+    {
+      _board[row, column] = GetSquareStateFromColor(color);
+      row += rowDelta;
+      column += columnDelta;
+    }
   }
 
   private static Color GetOppositeColor(Color color)
   {
     return color == Color.Black ? Color.White : Color.Black;
+  }
+
+  private static SquareState GetSquareStateFromColor(Color color)
+  {
+    return color == Color.Black ? SquareState.Black : SquareState.White;
   }
 }
