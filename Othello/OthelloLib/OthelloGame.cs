@@ -14,11 +14,11 @@ internal class OthelloGame : IOthelloGame
   internal OthelloGame()
   {
     _board = new SquareState[_boardSize, _boardSize];
-    for (int r = 0; r < _boardSize; r += 1)
+    for (int row = 0; row < _boardSize; row += 1)
     {
-      for (int c = 0; c < _boardSize; c += 1)
+      for (int col = 0; col < _boardSize; col += 1)
       {
-        _board[r, c] = SquareState.Empty;
+        _board[row, col] = SquareState.Empty;
       }
     }
 
@@ -26,7 +26,7 @@ internal class OthelloGame : IOthelloGame
     _board[3, 4] = SquareState.Black;
     _board[4, 3] = SquareState.Black;
     _board[4, 4] = SquareState.White;
-    
+
     _gameOver = false;
     _turn = Color.Black;
   }
@@ -40,9 +40,20 @@ internal class OthelloGame : IOthelloGame
 
     _board = new SquareState[_boardSize, _boardSize];
     Array.Copy(board, _board, board.Length);
-    _turn = turn;
-    // @TODO add logic for checking this
     _gameOver = false;
+    _turn = turn;
+    if (HasValidPlacement())
+    {
+      return;
+    }
+
+    _turn = GetOppositeColor(_turn);
+    if (HasValidPlacement())
+    {
+      return;
+    }
+
+    _gameOver = true;
   }
 
   public bool IsGameOver()
@@ -129,9 +140,18 @@ internal class OthelloGame : IOthelloGame
       return false;
     }
 
-    IEnumerable<(int Row, int Column)> locations = FindNextSameColorLocations(row, column, _turn);
-    Color oppositeColor = GetOppositeColor(_turn);
-    return locations.Any(pair => OutflanksColor(row, column, pair.Row, pair.Column, oppositeColor));
+    IEnumerable<(int Row, int Column)> locations = FindCandidatePositions(row, column);
+    return locations.Any(pair => OutflanksOpponent(row, column, pair.Row, pair.Column));
+  }
+
+  public bool HasValidPlacement()
+  {
+    return _board.FlattenPositions().Any(position => IsValidPlacement(position.Row, position.Column));
+  }
+
+  public IEnumerable<(int Row, int Column)> GetValidPlacements(int row, int column)
+  {
+    return _board.FlattenPositions().Where(position => IsValidPlacement(position.Row, position.Column));
   }
 
   public void PlaceDisk(int row, int column)
@@ -141,35 +161,34 @@ internal class OthelloGame : IOthelloGame
       throw new InvalidPlacementException("Invalid disk placement");
     }
 
-    Color oppositeColor = GetOppositeColor(_turn);
-    IEnumerable<(int Row, int Column)> locations = FindNextSameColorLocations(row, column, _turn)
-      .Where(pair => OutflanksColor(row, column, pair.Row, pair.Column, oppositeColor));
+    IEnumerable<(int Row, int Column)> locations = FindCandidatePositions(row, column)
+      .Where(pair => OutflanksOpponent(row, column, pair.Row, pair.Column));
     foreach (var pair in locations)
     {
       PlaceDiskLinear(row, column, pair.Row, pair.Column, _turn);
     }
 
-    _turn = oppositeColor;
+    _turn = GetOppositeColor(_turn);
+    if (HasValidPlacement())
+    {
+      return;
+    }
+
+    _turn = GetOppositeColor(_turn);
+    if (HasValidPlacement())
+    {
+      return;
+    }
+
+    _gameOver = true;
   }
 
   private int CountSquareState(SquareState state)
   {
-    int count = 0;
-    for (int r = 0; r < BoardSize; r += 1)
-    {
-      for (int c = 0; c < BoardSize; c += 1)
-      {
-        if (_board[r, c] == state)
-        {
-          count += 1;
-        }
-      }
-    }
-
-    return count;
+    return _board.FlattenElements().Count(cell => cell == state);
   }
 
-  private IEnumerable<(int Row, int Column)> FindNextSameColorLocations(int row, int column, Color color)
+  private IEnumerable<(int Row, int Column)> FindCandidatePositions(int row, int column)
   {
     int r;
     int c;
@@ -177,7 +196,7 @@ internal class OthelloGame : IOthelloGame
 
     for (r = row - 2; r >= 0; r -= 1)
     {
-      if (BoardHasColor(r, column, color))
+      if (BoardHasColor(r, column, _turn))
       {
         locations.Add((r, column));
         break;
@@ -186,7 +205,7 @@ internal class OthelloGame : IOthelloGame
 
     for (c = column - 2; c >= 0; c -= 1)
     {
-      if (BoardHasColor(row, c, color))
+      if (BoardHasColor(row, c, _turn))
       {
         locations.Add((row, c));
         break;
@@ -195,7 +214,7 @@ internal class OthelloGame : IOthelloGame
 
     for (r = row + 2; r <= BoardSize - 1; r += 1)
     {
-      if (BoardHasColor(r, column, color))
+      if (BoardHasColor(r, column, _turn))
       {
         locations.Add((r, column));
         break;
@@ -204,7 +223,7 @@ internal class OthelloGame : IOthelloGame
 
     for (c = column + 2; c <= BoardSize - 1; c++)
     {
-      if (BoardHasColor(row, c, color))
+      if (BoardHasColor(row, c, _turn))
       {
         locations.Add((row, c));
         break;
@@ -215,7 +234,7 @@ internal class OthelloGame : IOthelloGame
     c = column - 2;
     while (r >= 0 && c >= 0)
     {
-      if (BoardHasColor(r, c, color))
+      if (BoardHasColor(r, c, _turn))
       {
         locations.Add((r, c));
         break;
@@ -229,7 +248,7 @@ internal class OthelloGame : IOthelloGame
     c = column - 2;
     while (r <= BoardSize - 1 && c >= 0)
     {
-      if (BoardHasColor(r, c, color))
+      if (BoardHasColor(r, c, _turn))
       {
         locations.Add((r, c));
         break;
@@ -243,7 +262,7 @@ internal class OthelloGame : IOthelloGame
     c = column + 2;
     while (r <= BoardSize - 1 && c <= BoardSize - 1)
     {
-      if (BoardHasColor(r, c, color))
+      if (BoardHasColor(r, c, _turn))
       {
         locations.Add((r, c));
         break;
@@ -257,7 +276,7 @@ internal class OthelloGame : IOthelloGame
     c = column + 2;
     while (r >= 0 && c <= BoardSize - 1)
     {
-      if (BoardHasColor(r, c, color))
+      if (BoardHasColor(r, c, _turn))
       {
         locations.Add((r, c));
         break;
@@ -275,17 +294,18 @@ internal class OthelloGame : IOthelloGame
     return color == Color.Black ? _board[row, column] == SquareState.Black : _board[row, column] == SquareState.White;
   }
 
-  private bool OutflanksColor(int fromRow, int fromColumn, int toRow, int toColumn, Color color)
+  private bool OutflanksOpponent(int fromRow, int fromColumn, int toRow, int toColumn)
   {
+    Color opponent = GetOppositeColor(_turn);
     int rowDelta = Math.Min(Math.Max(toRow - fromRow, -1), 1);
     int columnDelta = Math.Min(Math.Max(toColumn - fromColumn, -1), 1);
-    
+
     int row = fromRow + rowDelta;
     int column = fromColumn + columnDelta;
     int steps = Math.Max(Math.Abs(toRow - row), Math.Abs(toColumn - column));
-    for(int i = 0; i < steps; i += 1)
+    for (int i = 0; i < steps; i += 1)
     {
-      if (!BoardHasColor(row, column, color))
+      if (!BoardHasColor(row, column, opponent))
       {
         return false;
       }
@@ -305,7 +325,7 @@ internal class OthelloGame : IOthelloGame
     int row = fromRow;
     int column = fromColumn;
     int steps = Math.Max(Math.Abs(toRow - row), Math.Abs(toColumn - column));
-    for(int i = 0; i < steps; i += 1)
+    for (int i = 0; i < steps; i += 1)
     {
       _board[row, column] = GetSquareStateFromColor(color);
       row += rowDelta;

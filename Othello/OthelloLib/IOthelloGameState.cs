@@ -18,5 +18,9 @@ public interface IOthelloGameState
 
   public SquareState this[int row, int column] { get; }
 
-  public bool IsValidPlacement(int row, int col);
+  public bool IsValidPlacement(int row, int column);
+
+  public bool HasValidPlacement();
+
+  public IEnumerable<(int Row, int Column)> GetValidPlacements(int row, int column);
 }
