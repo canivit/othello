@@ -97,7 +97,7 @@ internal class OthelloGame : IOthelloGame
     {
       if (IsGameOver())
       {
-        throw new GameOverException("Game is over.");
+        throw new GameOverException("The game is over.");
       }
 
       return _turn;
@@ -130,6 +130,11 @@ internal class OthelloGame : IOthelloGame
 
   public bool IsValidPlacement(int row, int column)
   {
+    if (IsGameOver())
+    {
+      return false;
+    }
+
     if (row < 0 || row > BoardSize - 1 || column < 0 || column > BoardSize - 1)
     {
       return false;
@@ -156,6 +161,11 @@ internal class OthelloGame : IOthelloGame
 
   public void PlaceDisk(int row, int column)
   {
+    if (IsGameOver())
+    {
+      throw new GameOverException("The game is over.");
+    }
+    
     if (!IsValidPlacement(row, column))
     {
       throw new InvalidPlacementException("Invalid disk placement");
