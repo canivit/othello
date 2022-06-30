@@ -9,8 +9,8 @@ public static class OthelloGameBuilder
     return new OthelloGame();
   }
 
-  public static IOthelloGame BuildGame(SquareState[,] board, Color turn)
+  public static IOthelloGame BuildGame(SquareState[,] board, Color lastPlayed)
   {
-    return new OthelloGame(board, turn);
+    return new OthelloGame(board, lastPlayed);
   }
 }

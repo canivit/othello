@@ -12,8 +12,7 @@ public class OthelloGameTests
   public void TestPlaceDiskOutflankOpponent()
   {
     IOthelloGame board = OthelloGameBuilder.BuildGame();
-
-    // North => South
+    
     Assert.AreEqual(Color.Black, board.Turn);
     Assert.AreEqual(SquareState.Black, board[4, 3]);
     Assert.AreEqual(SquareState.White, board[3, 3]);
@@ -23,8 +22,7 @@ public class OthelloGameTests
     Assert.AreEqual(SquareState.Black, board[3, 3]);
     Assert.AreEqual(SquareState.Black, board[2, 3]);
     Assert.AreEqual(Color.White, board.Turn);
-
-    // West => East
+    
     Assert.AreEqual(SquareState.White, board[4, 4]);
     Assert.AreEqual(SquareState.Black, board[4, 3]);
     Assert.AreEqual(SquareState.Empty, board[4, 2]);
@@ -33,8 +31,7 @@ public class OthelloGameTests
     Assert.AreEqual(SquareState.White, board[4, 3]);
     Assert.AreEqual(SquareState.White, board[4, 2]);
     Assert.AreEqual(Color.Black, board.Turn);
-
-    // NorthEast
+    
     Assert.AreEqual(SquareState.Black, board[3, 4]);
     Assert.AreEqual(SquareState.White, board[4, 3]);
     Assert.AreEqual(SquareState.Empty, board[5, 2]);
@@ -43,8 +40,7 @@ public class OthelloGameTests
     Assert.AreEqual(SquareState.Black, board[4, 3]);
     Assert.AreEqual(SquareState.Black, board[5, 2]);
     Assert.AreEqual(Color.White, board.Turn);
-
-    //SouthEast
+    
     Assert.AreEqual(SquareState.White, board[4, 4]);
     Assert.AreEqual(SquareState.Black, board[3, 3]);
     Assert.AreEqual(SquareState.Empty, board[2, 2]);
@@ -282,7 +278,7 @@ public class OthelloGameTests
     };
 
     SquareState[,] board = ConvertBoard(charBoard);
-    IOthelloGame game = OthelloGameBuilder.BuildGame(board, Color.White);
+    IOthelloGame game = OthelloGameBuilder.BuildGame(board, Color.Black);
     Assert.IsFalse(game.IsGameOver());
     Assert.IsFalse(game.IsTie());
     Assert.IsFalse(game.HasWinner());

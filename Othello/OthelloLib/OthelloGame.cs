@@ -31,7 +31,7 @@ internal class OthelloGame : IOthelloGame
     _turn = Color.Black;
   }
 
-  internal OthelloGame(SquareState[,] board, Color turn)
+  internal OthelloGame(SquareState[,] board, Color lastPlayed)
   {
     if (board.GetLength(0) != _boardSize || board.GetLength(1) != _boardSize)
     {
@@ -41,7 +41,7 @@ internal class OthelloGame : IOthelloGame
     _board = new SquareState[_boardSize, _boardSize];
     Array.Copy(board, _board, board.Length);
     _gameOver = false;
-    _turn = turn;
+    _turn = GetOppositeColor(lastPlayed);
     if (HasValidPlacement())
     {
       return;
