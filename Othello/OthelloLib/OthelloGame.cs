@@ -63,7 +63,7 @@ internal class OthelloGame : IOthelloGame
 
   public bool IsTie()
   {
-    return IsGameOver() && CountSquareState(SquareState.Black) == CountSquareState(SquareState.White);
+    return IsGameOver() && BlackScore == WhiteScore;
   }
 
   public bool HasWinner()
@@ -80,8 +80,8 @@ internal class OthelloGame : IOthelloGame
         throw new GameNotOverException("Game is not over. There is no winner.");
       }
 
-      int blackCount = CountSquareState(SquareState.Black);
-      int whiteCount = CountSquareState(SquareState.White);
+      int blackCount = BlackScore;
+      int whiteCount = WhiteScore;
       if (blackCount == whiteCount)
       {
         throw new NoWinnerException("Game is tie. No winner.");
@@ -102,6 +102,15 @@ internal class OthelloGame : IOthelloGame
 
       return _turn;
     }
+  }
+
+  public int BlackScore => CountSquareState(SquareState.Black);
+
+  public int WhiteScore => CountSquareState(SquareState.White);
+
+  public int GetPlayerScore(Color player)
+  {
+    return player == Color.Black ? BlackScore : WhiteScore;
   }
 
   public int BoardSize => _board.GetLength(0);
@@ -125,6 +134,16 @@ internal class OthelloGame : IOthelloGame
       }
 
       return _board[row, column];
+    }
+  }
+
+  public SquareState[,] Board
+  {
+    get
+    {
+      var copyBoard = new SquareState[BoardSize, BoardSize];
+      Array.Copy(copyBoard, _board, _board.Length);
+      return copyBoard;
     }
   }
 
@@ -154,9 +173,14 @@ internal class OthelloGame : IOthelloGame
     return _board.FlattenPositions().Any(position => IsValidPlacement(position.Row, position.Column));
   }
 
-  public IEnumerable<(int Row, int Column)> GetValidPlacements(int row, int column)
+  public IEnumerable<(int Row, int Column)> GetValidPlacements()
   {
     return _board.FlattenPositions().Where(position => IsValidPlacement(position.Row, position.Column));
+  }
+
+  public IOthelloGame CloneGame()
+  {
+    return new OthelloGame(_board, GetOppositeColor(_turn));
   }
 
   public void PlaceDisk(int row, int column)
@@ -165,7 +189,7 @@ internal class OthelloGame : IOthelloGame
     {
       throw new GameOverException("The game is over.");
     }
-    
+
     if (!IsValidPlacement(row, column))
     {
       throw new InvalidPlacementException("Invalid disk placement");
