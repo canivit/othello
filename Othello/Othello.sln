@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OthelloLib", "OthelloLib\Ot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OthelloLibTest", "OthelloLibTest\OthelloLibTest.csproj", "{42268A2E-0779-4942-B5D3-C14838FC7273}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OthelloWebApi", "OthelloWebApi\OthelloWebApi.csproj", "{BD24D111-B29E-43B9-8A0D-9900014A1694}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{42268A2E-0779-4942-B5D3-C14838FC7273}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42268A2E-0779-4942-B5D3-C14838FC7273}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42268A2E-0779-4942-B5D3-C14838FC7273}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD24D111-B29E-43B9-8A0D-9900014A1694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD24D111-B29E-43B9-8A0D-9900014A1694}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD24D111-B29E-43B9-8A0D-9900014A1694}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD24D111-B29E-43B9-8A0D-9900014A1694}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
