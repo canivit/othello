@@ -142,7 +142,7 @@ internal class OthelloGame : IOthelloGame
     get
     {
       var copyBoard = new SquareState[BoardSize, BoardSize];
-      Array.Copy(copyBoard, _board, _board.Length);
+      Array.Copy(_board, copyBoard, _board.Length);
       return copyBoard;
     }
   }
